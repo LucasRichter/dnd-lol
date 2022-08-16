@@ -62,7 +62,8 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
   const handleOnDragEnd = useCallback(
     async ({ destination }: DropResult) => {
       if (!destination || !randomChampion) return;
-      const { index: destinationIndex } = destination 
+      const { index: destinationIndex, droppableId } = destination 
+      if (droppableId !== 'champions') return
       const items = Array.from(characters);
       const leftChamp = items[destinationIndex - 1]
       const rightChamp = items[items.length > 1 ? destinationIndex + 1 : 0]
@@ -84,7 +85,7 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       // }
 
       const audio = new Audio(`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/pt_br/v1/champion-${isCorrect ? 'choose' : 'ban'}-vo/${randomChampion?.key}.ogg`)
-      await audio.play()
+      audio.play()
 
       items.splice(destinationIndex, 0, {
         ...randomChampion,
@@ -107,6 +108,34 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
           <div>
             {Array(chances).fill(<div />)}
           </div>
+          <Droppable direction='horizontal' droppableId="randomChar">
+            {(provided) => (
+              <div
+            className='w-full mb-2 mx-auto'
+            {...provided.droppableProps}
+                ref={provided.innerRef}
+          >
+            {randomChampion && (
+              <div className='flex items-center gap-x-5'>
+                <Image
+                  layout='fixed'
+                  priority
+                  className='animate-fade'
+                  alt={randomChampion.name + ' Splash'}
+                  width={1037}
+                  height={612}
+                  src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion.name.replace(/\s/g, '')}_0.jpg`}
+                />
+                <div
+                  className='border border-dashed border-blue-100 min-w-[210px] min-h-[180px]'
+                >
+                  <ChampionCard champion={randomChampion} />
+                </div>
+              </div>
+            )}
+          </div>
+            )}
+          </Droppable>          
           <Droppable direction='horizontal' droppableId="champions">
             {(provided) => ( 
               <div
@@ -114,24 +143,6 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
-                <div
-                  className='w-full mb-2 mx-auto'
-                >
-                  {randomChampion && (
-                    <div className='flex items-center gap-x-5'>
-                      <Image
-                        layout='fixed'
-                        priority
-                        className='animate-fade'
-                        alt={randomChampion.name + ' Splash'}
-                        width={1037}
-                        height={612}
-                        src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion.name.replace(/\s/g, '')}_0.jpg`}
-                      />
-                      <ChampionCard champion={randomChampion} />
-                    </div>
-                  )}
-                </div>
                 <div
                   className='bg-red-600 flex justify-center gap-x-4 items-center w-full p-4 overflow-x-auto'
                 >

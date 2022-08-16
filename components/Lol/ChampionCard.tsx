@@ -15,15 +15,18 @@ const ChampionCard = ({ champion }: ChampionCardProps): ReactElement => {
             ref={provided.innerRef}
             {...provided.draggableProps} 
             {...provided.dragHandleProps}
-            className='min-w-[200px] p-3 rounded-2xl bg-slate-500'
           >
-            <div className='flex flex-col items-center justify-center'>
-              <ChampionThumb championName={champion?.image.full} />
+            <div className='flex flex-col m-4 items-center rounded-2xl justify-center bg-white'>
+              <div className='pt-2'>
+                <ChampionThumb championName={champion?.image.full} />
+              </div>
 
-              <div>
-                <h3 className='text-2xl uppercase'>
-                  {champion.name}
-                </h3>
+              <h3 className='text-xl uppercase font-bold'>
+                {champion.name}
+              </h3>
+
+              <div className='p-4 rounded-b-2xl w-full bg-slate-300'>
+                <p>{champion.title}</p>
               </div>
             </div>
           </div>

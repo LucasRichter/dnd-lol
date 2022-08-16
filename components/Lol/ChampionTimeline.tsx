@@ -17,7 +17,7 @@ const ChampionTimeline = ({ champion, index, isError }: {champion: DDragonChampi
           {...provided.draggableProps} 
           {...provided.dragHandleProps}
         >
-          <div className={`flex rounded-2xl min-w-[200px] p-3 items-center justify-center flex-col ${isError ? 'bg-red-300' : 'bg-purple-500'}` }>
+          <div className={`flex rounded-2xl min-w-[200px] p-3 items-center justify-center flex-col ${isError ? 'bg-red-300' : 'bg-green-500'}` }>
             <div
               className={`text-center flex flex-col justify-center items-center ${flexDirection}`}
             >
@@ -32,8 +32,8 @@ const ChampionTimeline = ({ champion, index, isError }: {champion: DDragonChampi
             <div>
               <ChampionThumb championName={image?.full} />
               <h3 className='uppercase text-xl'>
-                  {name}
-                </h3>
+                {name}
+              </h3>
             </div>
           </div>
         </div>
