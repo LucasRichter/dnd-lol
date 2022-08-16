@@ -16,8 +16,9 @@ const ChampionTimeline = ({ champion, index, isError }: {champion: DDragonChampi
           ref={provided.innerRef} 
           {...provided.draggableProps} 
           {...provided.dragHandleProps}
+          className='z-10'
         >
-          <div className={`flex rounded-2xl min-w-[200px] p-3 items-center justify-center flex-col ${isError ? 'bg-red-300' : 'bg-green-500'}` }>
+          <div className={`flex rounded-2xl min-w-[200px] p-3 items-center justify-center flex-col ${isError ? 'bg-red-500' : 'bg-green-500'}` }>
             <div
               className={`text-center flex flex-col justify-center items-center ${flexDirection}`}
             >

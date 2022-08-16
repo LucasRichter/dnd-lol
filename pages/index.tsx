@@ -36,7 +36,7 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
     () => {
       const newAllChampions = shuffle(allChampions)
       const randomChampion = newAllChampions.pop()
-      setRandomChampion(newAllChampions.pop())
+      setRandomChampion(randomChampion)
       setAllChampions([...newAllChampions])
     },
     [allChampions, setAllChampions, setRandomChampion],
@@ -49,12 +49,13 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       setAllChampions(newAllChampions)
       const randomChampion = newAllChampions.pop()
       if (randomChampion) updateCharacters([randomChampion])
+      const firstChamp = newAllChampions.pop()
+      if (firstChamp) updateCharacters([firstChamp])
     },
     [allChampions, setAllChampions, setRandomChampion],
   )
 
   useEffect(() => {
-    getRandomChar()
     initChar()
   }, [])
   
@@ -62,17 +63,18 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
   const handleOnDragEnd = useCallback(
     async ({ destination }: DropResult) => {
       if (!destination || !randomChampion) return;
-      const { index: destinationIndex, droppableId } = destination 
+      const { index, droppableId } = destination 
       if (droppableId !== 'champions') return
-      const items = Array.from(characters);
-      const leftChamp = items[destinationIndex - 1]
-      const rightChamp = items[items.length > 1 ? destinationIndex + 1 : 0]
+      const destinationIndex = index - 1
+      const leftChamp = characters[destinationIndex - 1]
+      const rightChamp = characters[characters.length > 1 ? destinationIndex + 1 : 0]
       const leftDate = leftChamp && toDate(championsDate[leftChamp.name as JSONData]).getTime()
       const rightDate = rightChamp && toDate(championsDate[rightChamp.name as JSONData]).getTime()
       const randomChampDate = toDate(championsDate[randomChampion.name as JSONData]).getTime()
       let isCorrect = false
-
+      console.log(destinationIndex)
       if (!leftDate) {
+        console.log(leftDate)
         isCorrect = randomChampDate < rightDate
       } else if (!rightDate) {
         isCorrect = randomChampDate > leftDate
@@ -84,15 +86,16 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       //   setChances(v => v - 1)
       // }
 
-      const audio = new Audio(`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/pt_br/v1/champion-${isCorrect ? 'choose' : 'ban'}-vo/${randomChampion?.key}.ogg`)
-      audio.play()
-
-      items.splice(destinationIndex, 0, {
+      
+      characters.splice(destinationIndex, 0, {
         ...randomChampion,
-        isError: !isCorrect,
+        isError: isCorrect === false,
       });
-
-      updateCharacters(items.sort((a, b) => new Date(championsDate[a.name as JSONData]).getTime() - new Date(championsDate[b.name as JSONData]).getTime()));
+      updateCharacters([...characters].sort((a, b) => toDate(championsDate[a.name as JSONData]).getTime() - toDate(championsDate[b.name as JSONData]).getTime()));
+      const audio = new Audio(`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/pt_br/v1/champion-${isCorrect ? 'choose' : 'ban'}-vo/${randomChampion?.key}.ogg`)
+      audio.volume = 0.5
+      setRandomChampion(undefined)
+      await audio.play()
       getRandomChar();
     },
     [characters, randomChampion]
@@ -100,7 +103,7 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
 
   return (
     <NoSSR>
-      <h1 className='text-3xl uppercase text-center my-12'>
+      <h1 className='text-3xl uppercase text-white italic text-center my-4'>
         Linha do tempo de champions
       </h1>
       <DragDropContext  onDragEnd={handleOnDragEnd}>
@@ -115,42 +118,43 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
             {...provided.droppableProps}
                 ref={provided.innerRef}
           >
+            <div className='flex items-center gap-x-5 min-w-[] min-h-[612px]'>
             {randomChampion && (
-              <div className='flex items-center gap-x-5'>
-                <Image
-                  layout='fixed'
-                  priority
-                  className='animate-fade'
-                  alt={randomChampion.name + ' Splash'}
-                  width={1037}
-                  height={612}
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion.name.replace(/\s/g, '')}_0.jpg`}
-                />
-                <div
-                  className='border border-dashed border-blue-100 min-w-[210px] min-h-[180px]'
-                >
-                  <ChampionCard champion={randomChampion} />
-                </div>
-              </div>
-            )}
+                <>
+                  <Image
+                    layout='fixed'
+                    priority
+                    className='animate-fade'
+                    alt={randomChampion.name + ' Splash'}
+                    width={1037}
+                    height={612}
+                    src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion.name.replace(/\s/g, '')}_0.jpg`}
+                  />
+                  <div className='border border-dashed border-blue-100 min-w-[210px] min-h-[180px]'>
+                    <ChampionCard champion={randomChampion} />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
             )}
           </Droppable>          
           <Droppable direction='horizontal' droppableId="champions">
             {(provided) => ( 
               <div
-                className='flex flex-col justify-center w-full gap-y-3'
+                className='flex flex-col w-full gap-x-4'
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
                 <div
-                  className='bg-red-600 flex justify-center gap-x-4 items-center w-full p-4 overflow-x-auto'
+                  className='flex gap-x-4 w-full p-4 overflow-x-auto relative'
                 >
                   {characters.map(({isError, ...champion}, index) => {
                     return (
                       <ChampionTimeline isError={isError} champion={champion} index={index} key={champion.id + index} />
-                    );
-                  })}
+                      );
+                    })}
+                    <div className='w-full border-t-8 border-dotted absolute left-0 z-0 top-2/4' />
                 </div>
                 {provided.placeholder}
               </div>
