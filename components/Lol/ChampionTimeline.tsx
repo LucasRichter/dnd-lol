@@ -3,6 +3,7 @@ import { DDragonChampionListDataDTO } from 'kayn/typings/ddragon-dtos';
 import championsDate from '../../assets/championsDate.json'
 import { Draggable } from 'react-beautiful-dnd';
 import ChampionThumb from './ChampionThumb';
+import { JSONData } from '../../pages';
 
 const ChampionTimeline = ({ champion, index, isError }: {champion: DDragonChampionListDataDTO, index: number, isError?: boolean}): ReactElement => {
   const { name, key, image } = champion
@@ -25,7 +26,7 @@ const ChampionTimeline = ({ champion, index, isError }: {champion: DDragonChampi
                 className='rounded-md mx-auto bg-black h-14 w-4 my-2'
               />  
               <p className='mx-auto text-white'>
-                  {championsDate[name]}
+                  {championsDate[name as JSONData]}
               </p>
             </div>            
             <div>

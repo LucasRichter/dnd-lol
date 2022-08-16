@@ -7,11 +7,18 @@ import championsDate from '../assets/championsDate.json'
 import ChampionCard from '../components/Lol/ChampionCard';
 import ChampionTimeline from '../components/Lol/ChampionTimeline';
 import NoSSR from 'react-no-ssr';
-import Head from 'next/head';
 import Image from 'next/image';
+import toDate from '../utils/compareDate';
+
+
+export type JSONData = keyof typeof championsDate;
+
+interface TimeLineDataProps extends DDragonChampionListDataDTO {
+  isError?: boolean
+}
 
 interface LolProps {
-  data: DDragonChampionListDataDTO[]
+  data: TimeLineDataProps[]
   t: any;
 }
 
@@ -21,9 +28,9 @@ function shuffle<T>(array: T[]): T[] {
 
 const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
   const [chances, setChances] = useState(3)
-  const [characters, updateCharacters] = useState<DDragonChampionListDataDTO[]>([]);
-  const [allChampions, setAllChampions] = useState<DDragonChampionListDataDTO[]>(data)
-  const [randomChampion, setRandomChampion] = useState<DDragonChampionListDataDTO>()
+  const [characters, updateCharacters] = useState<TimeLineDataProps[]>([]);
+  const [allChampions, setAllChampions] = useState<TimeLineDataProps[]>(data)
+  const [randomChampion, setRandomChampion] = useState<TimeLineDataProps>()
 
   const getRandomChar = useCallback(
     () => {
@@ -40,7 +47,8 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
     () => {
       const newAllChampions = shuffle(allChampions)
       setAllChampions(newAllChampions)
-      updateCharacters([newAllChampions.pop()])
+      const randomChampion = newAllChampions.pop()
+      if (randomChampion) updateCharacters([randomChampion])
     },
     [allChampions, setAllChampions, setRandomChampion],
   )
@@ -58,9 +66,9 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       const items = Array.from(characters);
       const leftChamp = items[destinationIndex - 1]
       const rightChamp = items[items.length > 1 ? destinationIndex + 1 : 0]
-      const leftDate = leftChamp && new Date(championsDate[leftChamp.name] as string).getTime()
-      const rightDate = rightChamp && new Date(championsDate[rightChamp.name] as string).getTime()
-      const randomChampDate = new Date(championsDate[randomChampion.name] as string).getTime()
+      const leftDate = leftChamp && toDate(championsDate[leftChamp.name as JSONData]).getTime()
+      const rightDate = rightChamp && toDate(championsDate[rightChamp.name as JSONData]).getTime()
+      const randomChampDate = toDate(championsDate[randomChampion.name as JSONData]).getTime()
       let isCorrect = false
 
       if (!leftDate) {
@@ -83,7 +91,7 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
         isError: !isCorrect,
       });
 
-      updateCharacters(items.sort((a, b) => new Date(championsDate[a.name] as string).getTime() - new Date(championsDate[b.name] as string).getTime()));
+      updateCharacters(items.sort((a, b) => new Date(championsDate[a.name as JSONData]).getTime() - new Date(championsDate[b.name as JSONData]).getTime()));
       getRandomChar();
     },
     [characters, randomChampion]
