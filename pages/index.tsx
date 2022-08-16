@@ -9,6 +9,7 @@ import ChampionTimeline from '../components/Lol/ChampionTimeline';
 import NoSSR from 'react-no-ssr';
 import Image from 'next/image';
 import toDate from '../utils/compareDate';
+import { useRouter } from 'next/router';
 
 
 export type JSONData = keyof typeof championsDate;
@@ -27,7 +28,10 @@ function shuffle<T>(array: T[]): T[] {
 }
 
 const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
+  const [score, setScore] = useState(0)
+  const [streak, setStreak] = useState(0)
   const [chances, setChances] = useState(3)
+  const [maxStreak, setMaxStreak] = useState(0)
   const [characters, updateCharacters] = useState<TimeLineDataProps[]>([]);
   const [allChampions, setAllChampions] = useState<TimeLineDataProps[]>(data)
   const [randomChampion, setRandomChampion] = useState<TimeLineDataProps>()
@@ -48,9 +52,11 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       const newAllChampions = shuffle(allChampions)
       setAllChampions(newAllChampions)
       const randomChampion = newAllChampions.pop()
+      console.log(randomChampion)
       if (randomChampion) updateCharacters([randomChampion])
       const firstChamp = newAllChampions.pop()
-      if (firstChamp) updateCharacters([firstChamp])
+      console.log(firstChamp)
+      if (firstChamp) setRandomChampion(firstChamp)
     },
     [allChampions, setAllChampions, setRandomChampion],
   )
@@ -79,12 +85,19 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       } else if (!rightDate) {
         isCorrect = randomChampDate > leftDate
       } else {
-        isCorrect =randomChampDate > leftDate &&randomChampDate < rightDate
+        isCorrect = randomChampDate > leftDate && randomChampDate < rightDate
       }
 
-      // if (!isCorrect) {
-      //   setChances(v => v - 1)
-      // }
+      if (!isCorrect) {
+        setStreak(v => {
+          setMaxStreak(v)
+          return 0
+        })
+        setChances(v => v - 1)
+      } else {
+        setScore(v => v+1)
+        setStreak(v => v+1)
+      }
 
       
       characters.splice(destinationIndex, 0, {
@@ -100,6 +113,14 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
     },
     [characters, randomChampion]
   )
+  const router = useRouter()
+  const endGame = useCallback( () => {
+    if (chances === 0) {
+      router.push(`${maxStreak}/${score}`)
+    }
+  }, [score, maxStreak, router, chances])
+
+  useEffect(endGame, [endGame])
 
   return (
     <NoSSR>
@@ -108,9 +129,6 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       </h1>
       <DragDropContext  onDragEnd={handleOnDragEnd}>
         <div className='w-full flex-col text-center justify-center'>
-          <div>
-            {Array(chances).fill(<div />)}
-          </div>
           <Droppable direction='horizontal' droppableId="randomChar">
             {(provided) => (
               <div
@@ -118,23 +136,27 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
             {...provided.droppableProps}
                 ref={provided.innerRef}
           >
-            <div className='flex items-center gap-x-5 min-w-[] min-h-[612px]'>
-            {randomChampion && (
-                <>
-                  <Image
-                    layout='fixed'
-                    priority
-                    className='animate-fade'
-                    alt={randomChampion.name + ' Splash'}
-                    width={1037}
-                    height={612}
-                    src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion.name.replace(/\s/g, '')}_0.jpg`}
-                  />
-                  <div className='border border-dashed border-blue-100 min-w-[210px] min-h-[180px]'>
-                    <ChampionCard champion={randomChampion} />
-                  </div>
-                </>
-              )}
+            <div className='flex items-center gap-x-5 w-screen min-h-[612px]'>
+                <Image
+                  layout='fixed'
+                  priority
+                  alt={randomChampion?.name + ' Splash'}
+                  width={1037}
+                  onLoad={(e) => {
+                    e.currentTarget.classList.toggle('animate-fade')
+                  }}
+                  height={612}
+                  src={`https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion?.name.replace(/\s/g, '')}_0.jpg`}
+                />
+                <div className='border border-dashed border-blue-100 min-w-[210px] min-h-[180px]'>
+                  {randomChampion && <ChampionCard champion={randomChampion} />}
+                </div>
+              <div className='flex items-center gap-x-3'>
+                <p className='text-white text-lg font-medium'>HP: </p>
+                <div className='w-[180px] bg-green-300 h-4'>
+                  <div className={` bg-green-500 h-full transition-all`}  style={{ width: `${Math.max(100 * chances / 3, 1)}%`}}/>
+                </div>
+              </div>
             </div>
           </div>
             )}

@@ -9,14 +9,14 @@ module.exports = {
       
       // that is animation class
       animation: {
-        fade: 'fadeOut 4s ease-in-out',
+        fade: 'fadeOut 1s linear',
       },
 
       // that is actual animation
       keyframes: theme => ({
         fadeOut: {
           '0%': { left: -100 },
-          '100%': { left: 0 },
+          '80%': { left: 0 },
         },
       }),
     },
