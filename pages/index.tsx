@@ -10,7 +10,8 @@ import NoSSR from 'react-no-ssr';
 import Image from 'next/image';
 import toDate from '../utils/compareDate';
 import { useRouter } from 'next/router';
-
+import Head from 'next/head';
+import { DiGithubAlt } from 'react-icons/di'
 
 export type JSONData = keyof typeof championsDate;
 
@@ -123,10 +124,21 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
   useEffect(endGame, [endGame])
 
   return (
+    <>
+    <Head>
+      <title>LOL Timeline</title>
+    </Head>
     <NoSSR>
-      <h1 className='text-3xl uppercase text-white italic text-center my-4'>
-        Linha do tempo de champions
-      </h1>
+      <div className='flex justify-around w-full text-center items-center'>
+        <h1 className='text-3xl uppercase text-white italic text-center my-4'>
+          Linha do tempo de champions
+        </h1>
+        <div className='flex gap-x-3'>
+          <a href='https://github.com/LucasRichter/dnd-lol' target='_blank' rel="noreferrer">
+            <DiGithubAlt size={48} color='white' />
+          </a>
+        </div>
+      </div>
       <DragDropContext  onDragEnd={handleOnDragEnd}>
         <div className='w-full flex-col text-center justify-center'>
           <Droppable direction='horizontal' droppableId="randomChar">
@@ -185,7 +197,7 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
         </div>
       </DragDropContext>
     </NoSSR>
-    
+    </>
   )
 }
 
