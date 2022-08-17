@@ -74,14 +74,13 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       if (droppableId !== 'champions') return
       const destinationIndex = index - 1
       const leftChamp = characters[destinationIndex - 1]
-      const rightChamp = characters[characters.length > 1 ? destinationIndex + 1 : 0]
+      const rightChamp = characters[destinationIndex === 0 && characters.length === 1 ? 0 : destinationIndex + 1]
       const leftDate = leftChamp && toDate(championsDate[leftChamp.name as JSONData]).getTime()
       const rightDate = rightChamp && toDate(championsDate[rightChamp.name as JSONData]).getTime()
       const randomChampDate = toDate(championsDate[randomChampion.name as JSONData]).getTime()
       let isCorrect = false
-      console.log(destinationIndex)
-      if (!leftDate) {
-        console.log(leftDate)
+
+      if (!leftDate) {        
         isCorrect = randomChampDate < rightDate
       } else if (!rightDate) {
         isCorrect = randomChampDate > leftDate
@@ -89,15 +88,17 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
         isCorrect = randomChampDate > leftDate && randomChampDate < rightDate
       }
 
-      if (!isCorrect) {
+      
+      if (isCorrect) {
+        console.log('isCorrect')
+        setScore(v => ++v)
+        setStreak(v => ++v)
+      } else {
         setStreak(v => {
-          setMaxStreak(v)
+          setMaxStreak(max => v > max ? v : max)
           return 0
         })
-        setChances(v => v - 1)
-      } else {
-        setScore(v => v+1)
-        setStreak(v => v+1)
+        setChances(v => --v)
       }
 
       
@@ -120,6 +121,8 @@ const Lol: NextPage<LolProps> = ({data = [], t}: LolProps) => {
       router.push(`${maxStreak}/${score}`)
     }
   }, [score, maxStreak, router, chances])
+
+  console.log(score, maxStreak)
 
   useEffect(endGame, [endGame])
 

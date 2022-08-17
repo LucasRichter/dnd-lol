@@ -26,13 +26,13 @@ const ChampionTimeline = ({ champion, index, isError }: {champion: DDragonChampi
               <div
                 className='rounded-md mx-auto bg-black h-14 w-4 my-2'
               />  
-              <p className='mx-auto text-white'>
+              <p className='mx-auto text-white font-semibold'>
                   {championsDate[name as JSONData]}
               </p>
             </div>            
             <div>
               <ChampionThumb championName={image?.full} />
-              <h3 className='uppercase text-xl'>
+              <h3 className='uppercase font-bold text-xl'>
                 {name}
               </h3>
             </div>

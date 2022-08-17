@@ -1,12 +1,16 @@
 import React from 'react'
 import { useRouter } from "next/router"
 import Link from 'next/link'
+import Head from 'next/head'
 
 const FinalScore = () => {
     const router = useRouter()
     const { streak, score } = router.query
     return (
         <div className='text-white gap-y-10 text-center w-screen h-screen flex flex-col justify-center items-center'>
+            <Head>
+                <title>Derrota!</title>
+            </Head>
             <h1 className='text-3xl font-semibold italic'>Final game</h1>
             <div className='text-lg'>
                 <p>
